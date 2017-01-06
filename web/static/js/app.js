@@ -19,3 +19,16 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+import Vue from 'vue'
+import BlackSwan from "../components/black-swan.vue"
+
+// Create the main component
+Vue.component('black-swan', BlackSwan)
+
+// And create the top-level view model:
+new Vue({
+  el: '#app',
+  render(createElement) {
+    return createElement(BlackSwan, {})
+  }
+});

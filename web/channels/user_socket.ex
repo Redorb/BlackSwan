@@ -2,7 +2,7 @@ defmodule BlackSwan.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", BlackSwan.RoomChannel
+  channel "room:*", BlackSwan.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

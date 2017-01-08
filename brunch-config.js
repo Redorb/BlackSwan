@@ -55,6 +55,13 @@ exports.config = {
       // Do not use ES6 compiler in vendor code
       ignore: [/web\/static\/vendor/]
     },
+    sass: {
+      options: {
+        includePaths: [
+          'node_modules/vue-material/dist'
+        ]
+      }
+    },
     vue: {
       extractCSS: true,
       out: 'priv/static/css/components.css'
@@ -68,6 +75,9 @@ exports.config = {
   },
 
   npm: {
-    enabled: true
+    enabled: true,
+    styles: {
+      vue_material: ['dist/css/vue-material.css']
+    }
   }
 };

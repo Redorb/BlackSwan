@@ -2,8 +2,11 @@
   <div class="black-swan">
     <div class="user-details" v-if="enterName">
       <h1>Black Swan</h1>
-      <label>Please enter your name:</label><br/>
-      <input type="text" v-model="username">
+      <md-input-container>
+        <label>Please enter your name</label>
+        <md-input type="text" v-model="username">
+      </md-input-container>
+      
       <button v-on:click="connectToChat">Next</button>
     </div>
     <div class="messages" v-else>
@@ -170,6 +173,8 @@ export default {
       border-radius: 3px;
       outline: 0;
       border: 1px solid #ddd;
+      font-size: 16px;
+      font-family: Roboto;
     }
   }
 }

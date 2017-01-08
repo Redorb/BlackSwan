@@ -104,7 +104,7 @@ export default {
     text-align: center;
   }
   #users-list {
-    background-color: #008bdf;
+    background-color: #363c40;
     width: 250px;
     float: left;
     height: 100vh;

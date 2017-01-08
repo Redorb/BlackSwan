@@ -44,29 +44,29 @@ export default {
   },
   methods: {
     sendMessage() {
-      this.channel.push("new_msg", { body: this.message })
-      this.message = ''
+      this.channel.push("new_msg", { body: this.message });
+      this.message = '';
     },
     connectToChat() {
-      let presences = {}
-      this.enterName = false
-      this.socket = new Socket("/socket", {params: {username: this.username}}),
-      this.socket.connect()
+      let presences = {};
+      this.enterName = false;
+      this.socket = new Socket("/socket", {params: {username: this.username}});
+      this.socket.connect();
 
       this.channel = this.socket.channel("room:lobby", {});
       this.channel.on("new_msg", payload => {
-          payload.received_at = Date();
+          payload.received_at = new Date(payload.received_at*1000).toLocaleString();
           this.messages.push(payload);
       });
 
       this.channel.on("presence_state", state => {
-        presences = Presence.syncState(presences, state)
-        this.assignUsers(presences)
+        presences = Presence.syncState(presences, state);
+        this.assignUsers(presences);
       })
 
       this.channel.on("presence_diff", diff => {
-        presences = Presence.syncDiff(presences, diff)
-        this.assignUsers(presences)
+        presences = Presence.syncDiff(presences, diff);
+        this.assignUsers(presences);
       })
  
       this.channel.join()
@@ -75,9 +75,9 @@ export default {
       },
       assignUsers(presences) {
         let formatTimestamp = (timestamp) => {
-          timestamp = parseInt(timestamp)
-          let date = new Date(timestamp)
-          return date.toLocaleTimeString()
+          timestamp = parseInt(timestamp);
+          let date = new Date(timestamp);
+          return date.toLocaleTimeString();
         }
         this.users = Presence.list(presences, (user, {metas: metas}) => {
           return { user: user, online_at: formatTimestamp(metas[0].online_at) }

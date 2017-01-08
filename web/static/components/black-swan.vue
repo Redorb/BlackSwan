@@ -1,13 +1,15 @@
 <template>
   <div class="black-swan">
-    <div class="user-details" v-if="enterName">
+    <div class="login" v-if="enterName">
       <h1>Black Swan</h1>
-      <md-input-container>
-        <label>Please enter your name</label>
-        <md-input type="text" v-model="username">
-      </md-input-container>
-      
-      <button v-on:click="connectToChat">Next</button>
+      <div id="user-details">
+        <md-input-container>
+          <label>Please enter your name</label>
+          <md-input class="username-input" type="text" v-model="username">
+        </md-input-container>
+
+        <md-button class="md-raised" v-on:click="connectToChat">Next</button>
+      </div>
     </div>
     <div class="messages" v-else>
       <div id="users-list">
@@ -105,6 +107,14 @@ export default {
 .black-swan {
   h1 {
     text-align: center;
+  }
+  #user-details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .md-input-container {
+      width: 50%;
+    }
   }
   #users-list {
     background-color: #363c40;

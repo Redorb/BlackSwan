@@ -14,6 +14,7 @@ defmodule BlackSwan do
       supervisor(BlackSwan.Endpoint, []),
       # Start your own worker by calling: BlackSwan.Worker.start_link(arg1, arg2, arg3)
       # worker(BlackSwan.Worker, [arg1, arg2, arg3]),
+      supervisor(BlackSwan.Presence, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

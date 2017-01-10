@@ -105,7 +105,7 @@ export default {
 
           getUserMedia({video: true, audio: true}, (err, stream) => {
             if(err) {
-              joinChannel();
+              connectToWebRTC();
               return
             }
 
@@ -128,7 +128,7 @@ export default {
                 video.removeAttribute("src");
                 video.load();
                 peer.destroy()
-                joinChannel()
+                connectToWebRTC()
               } catch(err) {
                 //Ignore
               }
@@ -146,7 +146,7 @@ export default {
                 video.load();
 
                 video.src = null
-                joinChannel()
+                connectToWebRTC()
               } catch(err) {
                 //Ignore
               }

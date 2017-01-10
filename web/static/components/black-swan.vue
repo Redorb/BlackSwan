@@ -62,27 +62,109 @@ export default {
       this.channel.on("presence_state", state => {
         presences = Presence.syncState(presences, state);
         this.assignUsers(presences);
-      })
+      });
 
       this.channel.on("presence_diff", diff => {
         presences = Presence.syncDiff(presences, diff);
         this.assignUsers(presences);
-      })
+      });
  
       this.channel.join()
         .receive("ok", response => { console.log("Joined successfully", response) })
-        .receive("error", response => { console.log("Unable to join", response) })
+        .receive("error", response => { console.log("Unable to join", response) });
       },
-      assignUsers(presences) {
-        let formatTimestamp = (timestamp) => {
-          timestamp = parseInt(timestamp);
-          let date = new Date(timestamp);
-          return date.toLocaleTimeString();
-        }
-        this.users = Presence.list(presences, (user, {metas: metas}) => {
-          return { user: user, online_at: formatTimestamp(metas[0].online_at) }
-        })
+    assignUsers(presences) {
+      let formatTimestamp = (timestamp) => {
+        timestamp = parseInt(timestamp);
+        let date = new Date(timestamp);
+        return date.toLocaleTimeString();
       }
+      this.users = Presence.list(presences, (user, {metas: metas}) => {
+        return { user: user, online_at: formatTimestamp(metas[0].online_at) }
+      })
+    },
+    connectToWebRTC() {
+      if(!Peer.WEBRTC_SUPPORT) {
+        return;
+      }
+
+      channel = socket.channel("users:lobby", {})
+      channel.join()
+        .receive("ok", resp => { console.log("Joined users successfully", resp) })
+        .receive("error", resp => { console.log("Unable to join", resp) })
+
+      channel.on(`chat_start`, payload => {
+        if(payload.users.includes(window.username)) {
+          let otherUser = payload.users.filter((id) => window.username != id)[0]
+          channel.leave()
+          channel = null
+          let callChannel = socket.channel(payload.room)
+          callChannel.join()
+            .receive("ok", resp => { console.log("Joined  callChannel successfully", resp) })
+            .receive("error", resp => { console.log("Unable to join", resp) })
+
+          getUserMedia({video: true, audio: true}, (err, stream) => {
+            if(err) {
+              joinChannel();
+              return
+            }
+
+            let myVideo = document.getElementById('my-video')
+            let video = document.getElementById('caller-video')
+            let vendorURL = window.URL || window.webkitURL
+            myVideo.src = vendorURL ? vendorURL.createObjectURL(stream) : stream
+            myVideo.muted = true
+            myVideo.play()
+
+            var peer = new Peer({ initiator: payload.initiator == window.username, trickle: true, stream: stream, config: {iceServers: [{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}, {urls:'stun:stun2.l.google.com:19302'}, {urls:'stun:stun3.l.google.com:19302'}, {urls:'stun:stun4.l.google.com:19302'}]}})
+
+            peer.on('error', err => {
+              try {
+                callChannel.leave()
+                callChannel = null
+                peer = null
+                myVideo.removeAttribute("src");
+                myVideo.load();
+                video.removeAttribute("src");
+                video.load();
+                peer.destroy()
+                joinChannel()
+              } catch(err) {
+                //Ignore
+              }
+            })
+
+            peer.on('close', () => {
+              try {
+
+                callChannel.leave()
+                callChannel = null
+                peer = null
+                myVideo.removeAttribute("src");
+                myVideo.load();
+                video.removeAttribute("src");
+                video.load();
+
+                video.src = null
+                joinChannel()
+              } catch(err) {
+                //Ignore
+              }
+            })
+
+            peer.on('signal', signal => { callChannel.push('signal', signal) })
+            callChannel.on(`signal:${otherUser}`, signal => { peer.signal(signal) })
+            peer.on('connect', () => console.log("CONNECT"))
+            peer.on('stream', (callerStream) => {
+              // got remote video stream, now let's show it in a video tag
+              video = document.getElementById('caller-video')
+              video.src = vendorURL ? vendorURL.createObjectURL(callerStream) : callerStream
+              video.play()
+            })
+          })
+        }
+      })
+    }
   }
 }
 </script>
